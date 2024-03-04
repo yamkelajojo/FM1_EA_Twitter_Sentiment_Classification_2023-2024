@@ -32,6 +32,7 @@ import nltk
 from nltk.stem import WordNetLemmatizer
 import joblib,os
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 import re
 from nltk.corpus import stopwords
@@ -56,12 +57,12 @@ warnings.filterwarnings("ignore")
 import pandas as pd
 
 # Vectorizer
-news_vectorizer = joblib.load("resources/betterVect_sentiment.pkl","rb")
+news_vectorizer = joblib.load("betterVect_sentiment.pkl","rb")
 #tweet_cv = joblib.load(news_vectorizer) # loading your vectorizer from the pkl file
 
 # Load your raw data
-raw = pd.read_csv("resources/train.csv")
-
+raw = pd.read_csv("train.csv")
+#tweet_text = st.text_area("Enter Text","Type Here")
 # The main function where we will build the actual app
 def main(raw=raw):
 	"""Tweet Classifier App with Streamlit """
@@ -86,29 +87,66 @@ def main(raw=raw):
 		st.subheader("Raw Twitter data and label")
 		if st.checkbox('Show raw data'): # data is hidden if box is unchecked
 			st.write(raw[['sentiment', 'message']]) # will write the df to the page
+	tweet_text = st.text_area("Enter Text","Type Here")
 	if selection == "Predictions":
-		st.subheader("Prediction with ML Models")
-		tweet_text = st.text_area("Enter Text","Type Here")
-    
-	#if st.button("Classify"):
-		tweet_text = st.text_area("Enter Text","Type Here")
-		st.subheader(tweet_text)
-        
-        # Preprocessing steps...
-        
-		tweet_text = tweet_text.lower()
+		st.info("Prediction with ML Models")
+		
+	if st.button("Classify"):
 		text = list([tweet_text])
-		raw = pd.DataFrame(text, columns=["message"])
+		raw =pd.DataFrame(text, columns=["message"])
 		raw['message'].replace('\d+', '', regex = True, inplace= True)
 
-        # More preprocessing...
-		if st.button("Classify"):
-        # Perform prediction
-		#tweet_text = st.text_area("Enter Text","Type Here")
-			vect_text = news_vectorizer.transform([tweet_text]).toarray()
-			predictor = joblib.load(open(os.path.join("resources/Climant_change_sentiment.pkl"),"rb"))
-			prediction = predictor.predict(vect_text)[0]
-			st.success("Text Categorized as: {}".format(prediction))
+		def remove_RT(column_name):
+    			return re.sub(r'^rt[^\s]+', '',column_name)
+		raw['message']= raw['message'].apply(remove_RT)
+		raw['message'] = raw['message'].str.replace('rt', '')
+		def remove_handels(post):
+    			return re.sub('@[^\s]+',' ',post)
+		raw['message']= raw['message'].apply(remove_handels)
+				#removing the url
+		pattern_url = r'http[s]?://(?:[A-Za-z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9A-Fa-f][0-9A-Fa-f]))+'
+		raw['message'] = raw['message'].replace(to_replace = pattern_url,value = " ", regex = True)
+		def remove_hashtages(post):
+    			return re.sub('#[^\s]+',' ',post)
+		raw['message']= raw['message'].apply(remove_hashtages)
+		def remove_punctuation(post):
+    			return ''.join([l for l in post if l not in string.punctuation])
+		raw["message"] = raw["message"].apply(remove_punctuation)
+		raw['message'] = raw['message'].str.split()
+		stemmer = SnowballStemmer("english")
+		raw['message'] = raw['message'].apply(lambda x: [stemmer.stem(y) for y in x])
+			
+		def remove_stop_words(tokens):    
+    			return [t for t in tokens if t not in stopwords.words('english')]
+		raw['message'] = raw['message'].apply(remove_stop_words)
+		nltk.download('wordnet')
+		lemmatizer = WordNetLemmatizer()
+		def mbti_lemma(words, lemmatizer):
+    			return [lemmatizer.lemmatize(word) for word in words] 
+		raw['message'] = raw['message'].apply(mbti_lemma, args=(lemmatizer, ))
+		raw["message"] = raw["message"].apply(' '.join)
+
+
+
+			
+		#tweet_text = raw["message"][0]
+
+    			
+	#if st.button("submit"):
+		#tweet_text = st.text_area("happy")
+		tweet_text = tweet_text.lower()	
+		vect_text = news_vectorizer.transform(np.array([tweet_text]))
+			# Load your .pkl file with the model of your choice + make predictions
+			# Try loading in multiple models to give the user a choice
+		predictor = joblib.load(open(os.path.join("Climant_change_sentiment.pkl"),"rb"))
+		prediction = predictor.predict(vect_text)[0]
+		st.success(prediction)
+			
+
+			# When model has successfully run, will print prediction
+			# You can use a dictionary or similar structure to make this output
+			# more human interpretable.
+		st.success("Text Categorized as: {}".format(prediction))
 # Required to let Streamlit instantiate our web app.  
 if __name__ == '__main__':
 	main()
