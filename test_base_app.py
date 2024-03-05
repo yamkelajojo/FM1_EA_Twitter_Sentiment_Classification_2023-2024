@@ -1,7 +1,7 @@
 """
 
     Simple Streamlit webserver application for serving developed classification
-	models.
+    models.
 
     Author: Explore Data Science Academy.
 
@@ -13,12 +13,12 @@
     ---------------------------------------------------------------------
 
     Description: This file is used to launch a minimal streamlit web
-	application. You are expected to extend the functionality of this script
-	as part of your predict project.
+    application. You are expected to extend the functionality of this script
+    as part of your predict project.
 
-	For further help with the Streamlit framework, see:
+    For further help with the Streamlit framework, see:
 
-	https://docs.streamlit.io/en/latest/
+    https://docs.streamlit.io/en/latest/
 
 """
 
@@ -161,30 +161,73 @@ def main(raw=raw):
             # You can use a dictionary or similar structure to make this output
             # more human interpretable.
             st.success("Text Categorized as: {}".format(prediction))
-    		# Required to let Streamlit instantiate our web app.
-        
-        if selection == "EDA":
-            sentiment_labels = {
-				'-1': '-1:Anti',
-				'0': '0:Neutral',
-				'1': '1:Pro',
-				'2': '2:News'
-			}
 
-		ax = raw['sentiment'].value_counts().plot(kind='bar')
-		unique_sentiments = raw['sentiment'].unique()
-		ax.set_xticklabels([sentiment_labels.get(str(sentiment), 'Unknown') for sentiment in unique_sentiments])
+    if selection == "EDA":
+        st.text("Lil Dzowdzow")
+        sentiment_labels = {
+            "-1": "-1:Anti",
+            "0": "0:Neutral",
+            "1": "1:Pro",
+            "2": "2:News",
+        }
 
-		for i, v in enumerate(raw['sentiment'].value_counts()):
-		label = sentiment_labels.get(str(i), 'Unknown')
+        # Convert the 'sentiment' column to string type
+        raw["sentiment"] = raw["sentiment"].astype(str)
 
-		ax.set_ylabel('Count')
+        # Get the sentiment counts
+        sentiment_counts = raw["sentiment"].value_counts()
 
-		plt.show()
-      
-         
-         
-         
-         
+        # Replace the index labels with your sentiment_labels
+        sentiment_counts.index = [
+            sentiment_labels.get(i, "Unknown") for i in sentiment_counts.index
+        ]
+
+        st.bar_chart(sentiment_counts)
+
+        # Extracting hashtags from tweets
+        hashtag_list = []
+        for message in raw["message"]:
+            if message:
+                tags = message.split()
+                for tag in tags:
+                    tag = "#" + tag.strip(",")
+                    tag = tag.lower()
+                    hashtag_list.append(tag)
+
+        # Plotting hashtag bar graph
+        hashtag_counts = Counter(hashtag_list)
+        top_hashtags = hashtag_counts.most_common(7)
+        hashtags, counts = zip(*top_hashtags)
+
+        fig_hashtags, ax_hashtags = plt.subplots(figsize=(10, 6))
+        ax_hashtags.bar(hashtags, counts, color="red")
+        ax_hashtags.set_xlabel("Hashtags")
+        ax_hashtags.set_ylabel("Count")
+        ax_hashtags.set_title("Top 7 Unique Hashtags")
+        ax_hashtags.set_xticklabels(hashtags, rotation=45)
+
+        st.pyplot(fig_hashtags)
+
+        # happy
+        tweet = raw["message"].iloc[0]
+        words = tweet.split()
+        word_counts = {}
+        for word in words:
+            word_counts[word] = word_counts.get(word, 0) + 1
+        word_counts_df = pd.DataFrame.from_dict(
+            word_counts, orient="index", columns=["count"]
+        )
+        word_counts_df = word_counts_df.sort_values(by="count", ascending=False)
+
+        fig_words, ax_words = plt.subplots(figsize=(10, 6))
+        word_counts_df["count"].plot(kind="bar", color="skyblue")
+        ax_words.set_title("Word Counts in the Tweet")
+        ax_words.set_xlabel("Words")
+        ax_words.set_ylabel("Count")
+        ax_words.set_xticklabels(word_counts_df.index, rotation=50, ha="right")
+
+        st.pyplot(fig_words)
+
+
 if __name__ == "__main__":
     main()
