@@ -76,7 +76,7 @@ def main(raw=raw):
 
     # Creating sidebar with selection box -
     # you can create multiple pages this way
-    options = ["Prediction", "Information", "EDA"]
+    options = ["Prediction", "About", "Information", "EDA"]
     selection = st.sidebar.selectbox("Choose Option", options)
 
     # Building out the "Information" page
@@ -227,6 +227,30 @@ def main(raw=raw):
         ax_words.set_xticklabels(word_counts_df.index, rotation=50, ha="right")
 
         st.pyplot(fig_words)
+
+    if selection == "About":
+        st.subheader("About")
+
+        cc_image = "causeseffects-nologo.jpg"
+
+        st.image(
+            cc_image,
+            caption=None,
+            width=None,
+            use_column_width=None,
+            clamp=False,
+            channels="RGB",
+            output_format="auto",
+        )
+
+        st.markdown(
+            "Companies focusing on environmental sustainability aim to understand public perceptions of climate change as a potential threat."
+        )
+        st.markdown(
+            " This insight will enhance their market research, helping them anticipate consumer attitudes toward their eco-friendly products and services"
+        )
+
+        company_logo = "comp_logo.png"
 
 
 if __name__ == "__main__":
