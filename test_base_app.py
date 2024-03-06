@@ -63,28 +63,22 @@ news_vectorizer = joblib.load("betterVect_sentiment.pkl", "rb")
 # Load your raw data
 raw = pd.read_csv("train.csv")
 
-st.set_page_config(page_title="Your App Title", page_icon=":earth_americas:", layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(
+    page_title="Your App Title",
+    page_icon=":earth_americas:",
+    layout="wide",
+    initial_sidebar_state="expanded",
+)
+
 
 # tweet_text = st.text_area("Enter Text","Type Here")
 # The main function where we will build the actual app
 def main(raw=raw):
     """Tweet Classifier App with Streamlit"""
-    st.markdown(
-        """
-        <style>
-        .reportview-container {
-            background: #f0f0f0;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
-
     # Creates a main title and subheader on your page -
     # these are static across all pages
     st.title("Tweet Classifer")
     st.subheader("Climate change tweet classification")
-     
 
     # Creating sidebar with selection box -
     # you can create multiple pages this way
@@ -261,70 +255,88 @@ def main(raw=raw):
         st.markdown(
             " This insight will enhance their market research, helping them anticipate consumer attitudes toward their eco-friendly products and services"
         )
-	
-        company_logo = "comp_logo.png"
-       
-      
-        employees = [
-    	{"name": "Yamkela", "occupation": "Software Engineer", "image_path": "yamkela.jpg"},
-    	{"name": "Happy", "occupation": "Data Scientist", "image_path": "anza.jpg"},
-        {"name": "Thabatha", "occupation": "Data Scientist", "image_path":"thabatha.jpg"},
-        {"name": "Nompumezo", "occupation": "Data Scientist", "image_path": "nompumezo.jpg"},
-        {"name": "Noluthando", "occupation": "Data Scientist", "image_path": "noluthando.jpg"},
-    # Add more employee data as needed
-		]
-        #Title of the app
-        st.title("Employee Cards App")
-       # Display employee cards
-        for employee in employees:
-   		 # Image
-            image_path = employee["image_path"]
-            st.image(image_path, caption='', width=150)
 
-    # Name
+        company_logo = "comp_logo.png"
+
+        employees = [
+            {
+                "name": "Yamkela",
+                "occupation": "Software Engineer",
+                "image_path": "yamkela.jpg",
+            },
+            {"name": "Happy", "occupation": "Data Scientist", "image_path": "anza.jpg"},
+            {
+                "name": "Thabatha",
+                "occupation": "Data Scientist",
+                "image_path": "thabatha.jpg",
+            },
+            {
+                "name": "Nompumezo",
+                "occupation": "Data Scientist",
+                "image_path": "nompumezo.jpg",
+            },
+            {
+                "name": "Noluthando",
+                "occupation": "Data Scientist",
+                "image_path": "noluthando.jpg",
+            },
+            # Add more employee data as needed
+        ]
+        # Title of the app
+        st.title("Employee Cards App")
+        # Display employee cards
+        for employee in employees:
+            # Image
+            image_path = employee["image_path"]
+            st.image(image_path, caption="", width=150)
+
+            # Name
             st.subheader(employee["name"])
 
-    # Occupation
+            # Occupation
             st.text(employee["occupation"])
 
-    # Add a separator between employee cards
+            # Add a separator between employee cards
             st.markdown("---")
+
+
 if __name__ == "__main__":
     main()
     from PIL import Image
 
+
 def change_background_color(image_path, new_background_color=(255, 255, 255)):
     """
     Change the background color of an image.
-    
+
     Parameters:
         image_path (str): Path to the input image.
         new_background_color (tuple): RGB tuple representing the new background color.
-        
+
     Returns:
         PIL.Image.Image: Image object with the new background color.
     """
     with Image.open(image_path) as img:
         # Convert the image to RGBA mode (if not already)
         img = img.convert("RGBA")
-        
+
         # Create a new image with the desired background color
         background = Image.new("RGBA", img.size, new_background_color)
-        
+
         # Composite the original image onto the new background
         composed_img = Image.alpha_composite(background, img)
-        
+
         # Convert back to RGB mode
         composed_img = composed_img.convert("RGB")
-    
+
     return composed_img
 
-# Example usage
-image_path = "example.jpg"  # Path to the input image
-new_background_color = (255, 0, 0)  # New background color (red in this example)
-new_image = change_background_color(image_path, new_background_color)
 
-# Save or display the new image
-new_image.save("new_image.jpg")  # Save the new image
-new_image.show()  # Display the new image
+# # Example usage
+# image_path = "example.jpg"  # Path to the input image
+# new_background_color = (255, 0, 0)  # New background color (red in this example)
+# new_image = change_background_color(image_path, new_background_color)
 
+# # Save or display the new image
+# new_image.save("new_image.jpg")  # Save the new image
+# new_image.show()  # Display the new image
