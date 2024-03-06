@@ -67,7 +67,7 @@ news_vectorizer = joblib.load("betterVect_sentiment.pkl", "rb")
 raw = pd.read_csv("train.csv")
 
 st.set_page_config(
-    page_title="Climate Sight",
+    page_title="FeedFrenzy",
     page_icon=":earth_americas:",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -80,7 +80,7 @@ def main(raw=raw):
     """Tweet Classifier App with Streamlit"""
     # Creates a main title and subheader on your page -
     # these are static across all pages
-    st.title("Climate Sight")
+    st.title("FeedFrenzy")
     st.subheader("Climate change tweet classification")
 
     # Creating sidebar with selection box -
@@ -178,20 +178,14 @@ def main(raw=raw):
 
             prediction = predictor.predict(vect_text)[0]
 
-            if prediction == 1:
-                print(option_desc[1])
-                st.success("Text Categorized as  " + option_desc[1])
-            elif prediction == 2:
-                print(option_desc[2])
-                st.success("Text Categorized as " + option_desc[2])
+            if prediction == -1:
+                st.success("the text does not believe in man-made climate change")
             elif prediction == 0:
-                print(option_desc[0])
-                st.success("Text Categorized as " + option_desc[0])
-            elif prediction == -1:
-                print(option_desc[3])
-                st.success("Text Categorized as " + option_desc[3])
-            else:
-                print("Invalid prediction value.")
+                st.success("the text neither supports nor refutes the belief of man-made climate change")
+            elif prediction == 1:
+                st.success("the text supports the belief of man-made climate change")
+            elif prediction == 2:
+                st.success("the text links to factual news about climate change")
 
             # When model has successfully run, will print prediction
             # You can use a dictionary or similar structure to make this output
