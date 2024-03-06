@@ -55,6 +55,8 @@ warnings.filterwarnings("ignore")
 
 # Data dependencies
 import pandas as pd
+nltk.download('stopwords')
+
 
 # Vectorizer
 news_vectorizer = joblib.load("betterVect_sentiment.pkl", "rb")
