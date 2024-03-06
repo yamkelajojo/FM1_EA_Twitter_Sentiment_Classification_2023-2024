@@ -64,7 +64,7 @@ news_vectorizer = joblib.load("betterVect_sentiment.pkl", "rb")
 raw = pd.read_csv("train.csv")
 
 st.set_page_config(
-    page_title="Your App Title",
+    page_title="Climate Sight",
     page_icon=":earth_americas:",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -77,7 +77,7 @@ def main(raw=raw):
     """Tweet Classifier App with Streamlit"""
     # Creates a main title and subheader on your page -
     # these are static across all pages
-    st.title("Tweet Classifer")
+    st.title("Climate Sight")
     st.subheader("Climate change tweet classification")
 
     # Creating sidebar with selection box -
@@ -90,7 +90,7 @@ def main(raw=raw):
         st.info("General Information")
         # You can read a markdown file from supporting resources folder
         st.markdown(" Data description as per source")
-        st.text(
+        st.markdown(
             "Data description as per source The collection of this data was funded by a Canada Foundation for Innovation JELF Grant to Chris Bauch, University of Waterloo.This dataset aggregates tweets pertaining to climate change collected between Apr 27, 2015 and Feb 21, 2018. In total, 43943 tweets were annotated. Each tweet is labelled independently by 3 reviewers. This dataset only contains tweets that all 3 reviewers agreed on (the rest were discarded).Each tweet is labelled as one of the following classes:- 2(News): the tweet links to factual news about climate change- 1(Pro): the tweet supports the belief of man-made climate change- 0(Neutral): the tweet neither supports nor refutes the belief of man-made climate change- -1(Anti): the tweet does not believe in man-made climate change"
         )
 
@@ -100,7 +100,18 @@ def main(raw=raw):
 
     if selection == "Prediction":
         st.info("Prediction with ML Models")
-        tweet_text = st.text_area("Enter Text", "Type Here")
+        tweet_text = st.text_area(
+            "Enter text to see whether it's Neutral, Pro, News or Anti towards climate change",
+            "Type Here",
+        )
+
+        option_desc = [
+            "Neutral: the text neither supports nor refutes the belief of man-made climate change",
+            "Pro: the text supports the belief of man-made climate change",
+            "News: the text links to factual news about climate change",
+            "Anti: the text does not believe in man-made climate change Variable definitions",
+        ]
+
         if st.button("Classify"):
             text = list([tweet_text])
             raw = pd.DataFrame(text, columns=["message"])
@@ -161,15 +172,29 @@ def main(raw=raw):
             predictor = joblib.load(
                 open(os.path.join("Climant_change_sentiment.pkl"), "rb")
             )
+
             prediction = predictor.predict(vect_text)[0]
-            st.success(prediction)
+
+            if prediction == 1:
+                print(option_desc[1])
+                st.success("Text Categorized as  " + option_desc[1])
+            elif prediction == 2:
+                print(option_desc[2])
+                st.success("Text Categorized as " + option_desc[2])
+            elif prediction == 0:
+                print(option_desc[0])
+                st.success("Text Categorized as " + option_desc[0])
+            elif prediction == -1:
+                print(option_desc[3])
+                st.success("Text Categorized as " + option_desc[3])
+            else:
+                print("Invalid prediction value.")
+
             # When model has successfully run, will print prediction
             # You can use a dictionary or similar structure to make this output
             # more human interpretable.
-            st.success("Text Categorized as: {}".format(prediction))
 
     if selection == "EDA":
-        st.text("Lil Dzowdzow")
         sentiment_labels = {
             "-1": "-1:Anti",
             "0": "0:Neutral",
@@ -279,6 +304,11 @@ def main(raw=raw):
                 "name": "Noluthando",
                 "occupation": "Data Scientist",
                 "image_path": "noluthando.jpg",
+            },
+            {
+                "name": "Londeka",
+                "occupation": "Data Analyst",
+                "image_path": "londeka.png",
             },
             # Add more employee data as needed
         ]
