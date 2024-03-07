@@ -49,6 +49,8 @@ from collections import Counter
 import warnings
 import pickle
 from sklearn.feature_extraction.text import CountVectorizer
+from langdetect import detect
+import seaborn as sns
 
 warnings.filterwarnings("ignore")
 
@@ -85,8 +87,15 @@ def main(raw=raw):
 
     # Creating sidebar with selection box -
     # you can create multiple pages this way
-    options = ["Prediction", "About", "Information", "EDA"]
+    options = ["About","Information","EDA", "Prediction for logReg","Prediction for KNN","Prediction for NB"]
     selection = st.sidebar.selectbox("Choose Option", options)
+
+    option_desc = [
+            "Neutral: the text neither supports nor refuse the belief of man-made climate change",
+            "Pro: the text supports the belief of man-made climate change",
+            "News: the text links to factual news about climate change",
+            "Anti: the text does not believe in man-made climate change Variable definitions",
+        ]
 
     # Building out the "Information" page
     if selection == "Information":
@@ -101,19 +110,15 @@ def main(raw=raw):
         if st.checkbox("Show raw data"):  # data is hidden if box is unchecked
             st.write(raw[["sentiment", "message"]])  # will write the df to the page
 
-    if selection == "Prediction":
+    if selection == "Prediction for logReg":
         st.info("Prediction with ML Models")
         tweet_text = st.text_area(
             "Enter text to see whether it's Neutral, Pro, News or Anti towards climate change",
             "Type Here",
         )
+        tweet_text2 = tweet_text
 
-        option_desc = [
-            "Neutral: the text neither supports nor refutes the belief of man-made climate change",
-            "Pro: the text supports the belief of man-made climate change",
-            "News: the text links to factual news about climate change",
-            "Anti: the text does not believe in man-made climate change Variable definitions",
-        ]
+        
 
         if st.button("Classify"):
             text = list([tweet_text])
@@ -161,7 +166,7 @@ def main(raw=raw):
             def mbti_lemma(words, lemmatizer):
                 return [lemmatizer.lemmatize(word) for word in words]
 
-            raw["message"] = raw["message"].apply(mbti_lemma, args=(lemmatizer,))
+           # raw["message"] = raw["message"].apply(mbti_lemma, args=(lemmatizer,))
             raw["message"] = raw["message"].apply(" ".join)
 
             # tweet_text = raw["message"][0]
@@ -169,6 +174,7 @@ def main(raw=raw):
             # if st.button("submit"):
             # tweet_text = st.text_area("happy")
             tweet_text = tweet_text.lower()
+            
             vect_text = news_vectorizer.transform(np.array([tweet_text]))
             # Load your .pkl file with the model of your choice + make predictions
             # Try loading in multiple models to give the user a choice
@@ -177,19 +183,103 @@ def main(raw=raw):
             )
 
             prediction = predictor.predict(vect_text)[0]
-
-            if prediction == -1:
-                st.success("the text does not believe in man-made climate change")
+            if tweet_text2 in ("Type Here", "", " "):
+                st.error("Please enter some text")
+            elif len(tweet_text2.split()) < 3:
+                st.error("Please enter more than 3 words to make predictions")
+            elif detect(tweet_text2) != 'en':
+                st.error("Text is not in English")
+            elif prediction == -1:
+                st.success(option_desc[3])
             elif prediction == 0:
-                st.success("the text neither supports nor refutes the belief of man-made climate change")
+                st.success(option_desc[0])
             elif prediction == 1:
-                st.success("the text supports the belief of man-made climate change")
+                st.success(option_desc[1])
             elif prediction == 2:
-                st.success("the text links to factual news about climate change")
+                st.success(option_desc[2])
 
             # When model has successfully run, will print prediction
             # You can use a dictionary or similar structure to make this output
             # more human interpretable.
+                
+    if selection == "Prediction for KNN":
+        st.info("Prediction with ML Models")
+        tweet_text = st.text_area(
+            "Enter text to see whether it's Neutral, Pro, News or Anti towards climate change",
+            "Type Here",
+        )
+        tweet_text2 = tweet_text
+
+    
+
+        if st.button("Classify"):
+            text = list([tweet_text])
+           
+            tweet_text = tweet_text.lower()
+            
+            vect_text = news_vectorizer.transform(np.array([tweet_text]))
+            # Load your .pkl file with the model of your choice + make predictions
+            # Try loading in multiple models to give the user a choice
+            predictor_knn = joblib.load(
+                open(os.path.join("knn.pkl"), "rb")
+            )
+
+            prediction_knn = predictor_knn.predict(vect_text)[0]
+            if tweet_text2 in ("Type Here", "", " "):
+                st.error("Please enter some text")
+            elif len(tweet_text2.split()) < 3:
+                st.error("Please enter more than 3 words to make predictions")
+            elif detect(tweet_text2) != 'en':
+                st.error("Text is not in English")
+            elif prediction_knn == -1:
+                st.success(option_desc[3])
+            elif prediction_knn == 0:
+                st.success(option_desc[0])
+            elif prediction_knn == 1:
+                st.success(option_desc[1])
+            elif prediction_knn == 2:
+                st.success(option_desc[2])
+
+
+    if selection == "Prediction for NB":
+        st.info("Prediction with ML Models")
+        tweet_text = st.text_area(
+            "Enter text to see whether it's Neutral, Pro, News or Anti towards climate change",
+            "Type Here",
+        )
+        tweet_text2 = tweet_text
+
+    
+
+        if st.button("Classify"):
+            text = list([tweet_text])
+           
+            tweet_text = tweet_text.lower()
+            
+            vect_text = news_vectorizer.transform(np.array([tweet_text]))
+            # Load your .pkl file with the model of your choice + make predictions
+            # Try loading in multiple models to give the user a choice
+            predictor_nb = joblib.load(
+                open(os.path.join("naive_bayes.pkl"), "rb")
+            )
+
+            prediction_nb = predictor_nb.predict(vect_text.toarray())[0]
+            if tweet_text2 in ("Type Here", "", " "):
+                st.error("Please enter some text")
+            elif len(tweet_text2.split()) < 3:
+                st.error("Please enter more than 3 words to make predictions")
+            elif detect(tweet_text2) != 'en':
+                st.error("Text is not in English")
+            elif prediction_nb == -1:
+                st.success(option_desc[3])
+            elif prediction_nb == 0:
+                st.success(option_desc[0])
+            elif prediction_nb == 1:
+                st.success(option_desc[1])
+            elif prediction_nb == 2:
+                st.success(option_desc[2])
+
+
 
     if selection == "EDA":
         sentiment_labels = {
@@ -236,7 +326,38 @@ def main(raw=raw):
 
         st.pyplot(fig_hashtags)
 
-        # happy
+        word_count = raw['message'].apply(lambda x: len(x.split()))
+        raw['word_count'] = word_count
+        # create subplots
+        plt.figure(figsize=(14,8))
+        fig,axs = plt.subplots(1, 4, sharey = True)
+
+        # plot title
+        fig.suptitle('Boxplots for word count of each class')
+
+        # class 2 plot
+        y2 = raw[raw['sentiment'] == 2]['word_count']
+        axs[0].boxplot(y2)
+        axs[0].set_xlabel('class 2')
+
+        # class 1 plot
+        y1 = raw[raw['sentiment'] == 1]['word_count']
+        axs[1].boxplot(y1)
+        axs[1].set_xlabel('class 1')
+
+        # class 0 plot
+        y0 =raw[raw['sentiment'] == 0]['word_count']
+        axs[2].boxplot(y0)
+        axs[2].set_xlabel('class 0')
+
+        # class -1 plot
+        y_1 = raw[raw['sentiment'] == -1]['word_count']
+        axs[3].boxplot(y_1)
+        axs[3].set_xlabel('class -1')
+
+        plt.show()
+
+        st.text("lipopo wee")
         tweet = raw["message"].iloc[0]
         words = tweet.split()
         word_counts = {}
