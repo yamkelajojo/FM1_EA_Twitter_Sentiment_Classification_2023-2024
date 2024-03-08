@@ -87,7 +87,7 @@ def main(raw=raw):
 
     # Creating sidebar with selection box -
     # you can create multiple pages this way
-    options = ["About","Information","EDA", "Prediction for logReg","Prediction for KNN","Prediction for NB"]
+    options = ["About","Information","EDA", "Prediction for linearSVC","Prediction for KNN","Prediction for NB"]
     selection = st.sidebar.selectbox("Choose Option", options)
 
     option_desc = [
@@ -110,7 +110,7 @@ def main(raw=raw):
         if st.checkbox("Show raw data"):  # data is hidden if box is unchecked
             st.write(raw[["sentiment", "message"]])  # will write the df to the page
 
-    if selection == "Prediction for logReg":
+    if selection == "Prediction for linearSVC":
         st.info("Prediction with ML Models")
         tweet_text = st.text_area(
             "Enter text to see whether it's Neutral, Pro, News or Anti towards climate change",
