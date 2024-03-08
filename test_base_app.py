@@ -357,7 +357,6 @@ def main(raw=raw):
 
         plt.show()
 
-        st.text("lipopo wee")
         tweet = raw["message"].iloc[0]
         words = tweet.split()
         word_counts = {}
