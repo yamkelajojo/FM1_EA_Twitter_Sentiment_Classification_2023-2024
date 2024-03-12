@@ -1,0 +1,1 @@
+This repository hosts a Streamlit web application for classifying climate change tweets. Leveraging natural language processing and supervised learning techniques, the app categorizes tweets into "Supportive", "Skeptical", "Action-oriented", or "Informational" classes. Join me in advancing environmental awareness through data-driven insights.
